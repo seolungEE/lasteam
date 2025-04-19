@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>5 vs 5 팀 짜기</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 40px;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .controls {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      width: 250px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 16px;
+      margin-left: 8px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+    }
+    .team, .players {
+      background-color: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      width: 300px;
+    }
+    h3 {
+      margin-top: 0;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 8px;
+    }
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    li {
+      background-color: #ecf0f1;
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .remove-btn {
+      background: none;
+      border: none;
+      color: #e74c3c;
+      cursor: pointer;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>5 vs 5 팀 생성기</h1>
+
+<div class="controls">
+  <input type="text" id="playerInput" placeholder="플레이어 이름 입력">
+  <button onclick="addPlayer()">추가</button>
+  <button onclick="makeTeams()">팀 짜기</button>
+</div>
+
+<div class="container">
+  <div class="players">
+    <h3>플레이어 목록</h3>
+    <ul id="playerList"></ul>
+  </div>
+  <div class="team">
+    <h3>팀 A</h3>
+    <ul id="teamA"></ul>
+  </div>
+  <div class="team">
+    <h3>팀 B</h3>
+    <ul id="teamB"></ul>
+  </div>
+</div>
+
+<script>
+  let players = [];
+
+  window.onload = function () {
+    const saved = localStorage.getItem('players');
+    if (saved) {
+      players = JSON.parse(saved);
+      renderPlayerList();
+    }
+    const input = document.getElementById("playerInput");
+    input.focus();
+
+    // 엔터 키로 추가
+    input.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        addPlayer();
+      }
+    });
+  };
+
+  function savePlayers() {
+    localStorage.setItem('players', JSON.stringify(players));
+  }
+
+  function addPlayer() {
+    const input = document.getElementById("playerInput");
+    const name = input.value.trim();
+    if (name && !players.includes(name)) {
+      players.push(name);
+      renderPlayerList();
+      savePlayers();
+    }
+    input.value = "";
+    input.focus();
+  }
+
+  function removePlayer(name) {
+    const index = players.indexOf(name);
+    if (index !== -1) {
+      players.splice(index, 1);
+      renderPlayerList();
+      savePlayers();
+    }
+  }
+
+  function renderPlayerList() {
+    const list = document.getElementById("playerList");
+    list.innerHTML = "";
+    players.forEach(player => {
+      const li = document.createElement("li");
+      li.innerHTML = `${player} <button class="remove-btn" onclick="removePlayer('${player}')">제거</button>`;
+      list.appendChild(li);
+    });
+  }
+
+  function makeTeams() {
+    if (players.length < 10) {
+      alert("최소 10명의 플레이어가 필요합니다.");
+      return;
+    }
+
+    const shuffled = [...players].sort(() => Math.random() - 0.5);
+    const teamA = shuffled.slice(0, 5);
+    const teamB = shuffled.slice(5, 10);
+
+    document.getElementById("teamA").innerHTML = teamA.map(p => `<li>${p}</li>`).join("");
+    document.getElementById("teamB").innerHTML = teamB.map(p => `<li>${p}</li>`).join("");
+  }
+</script>
+
+</body>
+</html>
